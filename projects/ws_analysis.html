@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>workspace analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="ws_analysis.css" rel="stylesheet" />
+  </head>
+  <body>
+    <section class="ws_hero">
+      <h1>Franka Research 3 (FR3) Workspace Analysis</h1>
+      <p>
+        Reachable and Manipulability Workspace Analysis of the Franka Research 3
+        Manipulator using ROS2, Pinocchio and Monte Carlo Sampling.
+      </p>
+    </section>
+
+    <main>
+      <section class="ws_section">
+        <h2>Introduction</h2>
+        <p>
+          A robot manipulator's workspace defines the region in which its
+          end-effector can operate. Workspace analysis is an essential step in
+          robot design, task planning, and workcell design because it determines
+          the capability of a manipulator to perform a given task.
+        </p>
+      </section>
+
+      <section class="ws_section">
+        <h2>Overview</h2>
+
+        <ul>
+          <li>
+            <strong>Robot:</strong> Franka Research 3 (FR3) 7-DOF Manipulator
+          </li>
+
+          <li><strong>Framework:</strong> ROS2 Jazzy</li>
+
+          <li><strong>Kinematics Library:</strong> Pinocchio</li>
+
+          <li>
+            <strong>Sampling Method:</strong> Monte Carlo Joint-Space Sampling
+          </li>
+
+          <li>
+            <strong>Samples Generated:</strong> 50,000 Random Configurations
+          </li>
+
+          <li><strong>Visualization:</strong> PyVista</li>
+
+          <li>
+            <strong>Workspace Metric:</strong> Yoshikawa Manipulability Index
+            (Translational)
+          </li>
+        </ul>
+
+        <p>
+          In this project, the workspace of the Franka Research 3 (FR3)
+          manipulator is analyzed using a URDF-based robot model, Pinocchio for
+          kinematic computation, and Monte Carlo joint-space sampling.
+        </p>
+      </section>
+
+      <section class="ws_section">
+        <h2>Reachable Workspace</h2>
+
+        <h3>Concept</h3>
+
+        <p>
+          The reachable workspace represents all possible positions that the
+          robot's end-effector can achieve while satisfying its joint limits.
+        </p>
+
+        <div class="equation">
+          <p>W<sub>R</sub> = { x ∈ ℝ³ | ∃ q ∈ Q such that x = f(q) }</p>
+        </div>
+
+        <p>where,</p>
+
+        <ul>
+          <li><strong>q</strong> represents the joint configuration.</li>
+
+          <li>
+            <strong>Q</strong> denotes the set of all valid joint configurations
+            within the joint limits.
+          </li>
+
+          <li>
+            <strong>f(q)</strong> is the forward kinematics mapping from joint
+            space to Cartesian space.
+          </li>
+        </ul>
+
+        <h3>Implementation</h3>
+
+        <p>
+          Computing the exact reachable workspace of a redundant manipulator
+          analytically is computationally challenging. Therefore, a Monte Carlo
+          joint-space sampling approach is adopted to obtain an approximate
+          representation of the workspace.
+        </p>
+
+        <p>
+          Random joint configurations are generated within the robot's joint
+          limits. For each configuration, forward kinematics is computed using
+          Pinocchio to determine the pose of the end-effector. The translational
+          component of the end-effector pose is then extracted and stored as a
+          point in the workspace.
+        </p>
+
+        <h3>Result</h3>
+
+        <p>
+          A total of 50,000 random joint configurations were sampled within the
+          joint limits of the FR3 manipulator. The corresponding end-effector
+          positions were computed using forward kinematics and visualized as a
+          three-dimensional point cloud, providing an approximation of the
+          robot's reachable workspace.
+        </p>
+
+        <figure>
+          <img
+            src="/images/ws_analysis/reachable_ws.png"
+            alt="FR3 Reachable Workspace"
+          />
+
+          <figcaption>
+            Figure 1. Reachable workspace of the Franka Research 3 manipulator
+            generated using Monte Carlo joint-space sampling.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="ws_section">
+        <h2>Limitation of Reachable Workspace</h2>
+
+        <p>
+          Although the reachable workspace identifies all positions that the
+          robot can attain, it does not provide any information about the
+          robot's dexterity or motion capability at those locations.
+        </p>
+
+        <p>
+          Two points may both lie within the reachable workspace, yet the robot
+          may exhibit significantly different kinematic behavior at each point.
+          At one location, the robot may move freely in all Cartesian
+          directions, while at another it may operate close to a singular
+          configuration with severely restricted motion.
+        </p>
+
+        <p>
+          Therefore, reachable workspace alone is insufficient for evaluating
+          the quality of a robot's workspace. A performance measure is required
+          to quantify how effectively the manipulator can generate motion
+          throughout its workspace.
+        </p>
+      </section>
+
+      <section class="ws_section">
+        <h2>Manipulability Workspace</h2>
+
+        <h3>Concept</h3>
+
+        <p>
+          Manipulability workspace extends the reachable workspace by evaluating
+          the robot's kinematic performance throughout the reachable region.
+          Rather than indicating only whether a point can be reached, it
+          quantifies how effectively the manipulator can produce motion in
+          different Cartesian directions at that configuration.
+        </p>
+
+        <p>
+          In this work, the Yoshikawa manipulability index is used as a measure
+          of dexterity. Configurations with higher manipulability indicate
+          better motion capability, whereas lower values indicate reduced
+          dexterity and proximity to singular configurations.
+        </p>
+
+        <h3>Mathematical Definition</h3>
+
+        <p>
+          The manipulability index is computed using the translational component
+          of the geometric Jacobian, since the objective of this analysis is to
+          evaluate the robot's ability to generate linear motion throughout its
+          workspace.
+        </p>
+
+        <div class="equation">
+          <p>w = √det(J<sub>v</sub>J<sub>v</sub><sup>T</sup>)</p>
+        </div>
+
+        <p>where,</p>
+
+        <ul>
+          <li>
+            <strong>J<sub>v</sub></strong> is the translational Jacobian of the
+            end-effector.
+          </li>
+
+          <li><strong>w</strong> is the Yoshikawa manipulability index.</li>
+        </ul>
+
+        <h3>Implementation</h3>
+
+        <p>
+          The manipulability workspace is generated using the same set of joint
+          configurations employed for the reachable workspace analysis. For each
+          sampled configuration, the translational Jacobian of the end-effector
+          is computed using Pinocchio, and the corresponding Yoshikawa
+          manipulability index is evaluated.
+        </p>
+
+        <p>
+          The computed manipulability value is associated with the corresponding
+          end-effector position and visualized using a color map. Regions with
+          higher manipulability indicate better dexterity, whereas lower values
+          highlight configurations with reduced motion capability and proximity
+          to singularities.
+        </p>
+
+        <h3>Result</h3>
+
+        <p>
+          The manipulability workspace provides a more informative
+          representation of the robot's operational capability than the
+          reachable workspace alone. While every point in the reachable
+          workspace can be attained, the manipulability distribution reveals
+          regions where the robot can generate motion more effectively and
+          regions where its dexterity is significantly reduced.
+        </p>
+
+        <figure>
+          <img
+            src="/images/ws_analysis/manipulability_ws.png"
+            alt="FR3 Manipulability Workspace"
+          />
+
+          <figcaption>
+            Figure 2. Manipulability workspace of the Franka Research 3
+            manipulator generated using the Yoshikawa manipulability index.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="ws_section">
+        <h2>Conclusion</h2>
+
+        <p>
+          This project presented a workspace analysis framework for the Franka
+          Research 3 manipulator using ROS2 and Pinocchio. The reachable
+          workspace identifies all attainable end-effector positions, whereas
+          the manipulability workspace provides additional insight into the
+          robot's kinematic performance throughout the workspace. Together,
+          these analyses offer a comprehensive understanding of the robot's
+          capabilities and provide valuable information for task planning, robot
+          placement, and workspace optimization.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
