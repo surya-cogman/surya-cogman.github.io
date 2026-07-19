@@ -1,0 +1,75 @@
+body {
+  background: #f8fafc;
+
+  color: #1f2937;
+  font-family: "Poppins", sans-serif;
+}
+
+main {
+  max-width: 1500px;
+  margin: 60px auto;
+}
+
+.ws_hero {
+  margin-top: 60px;
+  margin-bottom: 50px;
+  padding-bottom: 50px;
+
+  border-bottom: 3px solid #42454d;
+}
+
+.ws_hero h1 {
+  text-align: center;
+  font-family: "orbitron", sans-serif;
+  font-size: 50px;
+  letter-spacing: 1px;
+}
+
+.ws_section {
+  background: white;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.ws_section h2 {
+  font-family: "orbitron", sans-serif;
+  font-size: 30px;
+  letter-spacing: 1px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid cyan;
+}
+
+.ws_section p {
+  font-size: 18px;
+  text-align: justify;
+}
+
+.ws_project {
+  margin-top: 60px;
+  text-align: right;
+}
+
+.ws_project div {
+  /* display: inline-block; */
+
+  background-color: #f8fafc;
+  padding: 20px;
+}
+
+.ws_project a {
+  text-decoration: none;
+  color: #1f2937;
+  transition: 3ms ease;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ws_project a:hover {
+  text-decoration: none;
+
+  color: #245f73;
+}

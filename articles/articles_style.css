@@ -1,0 +1,80 @@
+body {
+  background: #f8fafc;
+  color: #1f2937;
+
+  font-family: "Poppins", sans-serif;
+}
+
+main {
+  max-width: 1200px;
+  margin: 60px auto;
+}
+
+.hero_section {
+  text-align: center;
+  padding: 20px;
+  border-bottom: 3px solid #484849;
+}
+
+.hero_section h1 {
+  font-family: "orbitron", sans-serif;
+  letter-spacing: 1px;
+  font-size: 52px;
+}
+
+.articles-container {
+  width: 80%;
+
+  margin: auto;
+}
+
+.article_card {
+  background: white;
+  padding: 30px;
+  margin-bottom: 30px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  border-left: 15px solid #2563eb;
+
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  transition: 0.35s ease;
+}
+.article_card:hover {
+  transform: translateY(-8px);
+
+  box-shadow: 0 16px 35px rgba(37, 99, 235, 0.15);
+}
+
+.article_card h2 {
+  font-family: "orbitron", sans-serif;
+  font-weight: 400;
+  letter-spacing: 1px;
+  font-size: 30px;
+  color: #111827;
+
+  margin-bottom: 18px;
+}
+
+.article_card p {
+  font-size: 18px;
+
+  color: #4b5563;
+
+  line-height: 1.8;
+
+  margin-bottom: 25px;
+}
+
+.article-link {
+  color: #2563eb;
+
+  text-decoration: none;
+
+  font-weight: 600;
+
+  transition: 0.3s;
+}
+
+.article-link:hover {
+  letter-spacing: 1px;
+}

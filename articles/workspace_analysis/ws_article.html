@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Work Space Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="ws_article.css" rel="stylesheet" />
+  </head>
+  <body>
+    <section class="ws_hero">
+      <h1>Workspace Analysis</h1>
+    </section>
+
+    <main>
+      <section class="ws_section">
+        <h2>What is Workspace Analysis?</h2>
+        <p>
+          Most robotic manipulators are designed to move the end effector in 3D
+          space to perform tasks like pick and place,assembly and welding.Before
+          fixing the robot for any application,it is important to analyze where
+          the robot end effector can reach and how effectively it can move
+          within the interested regions.
+        </p>
+
+        <p>
+          Workspace analysis is a fundamental step in robot design and task
+          allocation.It allows to determine the operational limits of the robot
+          and evaluate whether it can perform the desired task before
+          deployment.
+        </p>
+      </section>
+
+      <section class="ws_section">
+        <h2>Why is Workspace Analysis Important</h2>
+        <p>
+          A robot may be able to reach a task point,but successful execution of
+          opertaion depends on more than reachability.The manipulator must also
+          possess dexterity to orient the end-effector,avoid singualr
+          configurations, and respect joint limits.
+        </p>
+
+        <p>Workspace analysis answers :</p>
+        <ul>
+          <li>Can robot reach every point required by the task?</li>
+          <li>Which regions provide good dexterity?</li>
+          <li>How do joint limits influence the workspace?</li>
+          <li>Is the selected manipulator suitable for desired task?</li>
+        </ul>
+
+        These are valuable during robot selection,workspace design and task
+        design.
+      </section>
+
+      <section class="ws_section">
+        <h2>Reachable Workspace</h2>
+        <p>The most basic workspace analysis is reachable workspace</p>
+        <p>
+          The reachable workspace consists of all psoitions that the robot's
+          end-effector can attain through at least one configuration.It does not
+          focus on how orientations are possible at each configuration.
+        </p>
+        <p>
+          In practice, reachable workspaces are commonly generated using
+          <strong>Monte Carlo sampling</strong>,where thousands of random joint
+          configurations are sampled within the joint limits.Forward Kinematics
+          is evaluated for each configuration,and the resulting end effector
+          positions collectively approximate the robots reachable volume.
+        </p>
+      </section>
+
+      <section class="ws_section">
+        <h2>Beyound Reachability</h2>
+        <p>
+          Although reachability is important, it is rarely sufficient for
+          real-world robotic applications.
+        </p>
+        <p>
+          Two positions may both lie inside the reachable workspace, yet one
+          position may allow the robot to move freely in many directions while
+          the other lies close to a singular configuration where motion becomes
+          difficult or unstable.
+        </p>
+        <p>
+          For applications requiring precise manipulation, force control, or
+          continuous motion, we are interested not only in whether a point can
+          be reached, but also in how effectively the robot can move once it
+          reaches that point.
+        </p>
+        <p>
+          This motivates the study of manipulator dexterity through
+          <strong>manipulability analysis</strong>.
+        </p>
+      </section>
+
+      <section class="ws_section">
+        <h2>Manipulability Workspace</h2>
+        <p>
+          A manipulability workspace extends the concept of a reachable
+          workspace by associating each reachable position with a measure of the
+          robot's kinematic dexterity.
+        </p>
+        <p>
+          Instead of simply observing whether a point is reachable, a
+          manipulability metric such as Yoshikawa's manipulability index is
+          evaluated from the manipulator Jacobian at each sampled configuration.
+          Regions with higher manipulability correspond to configurations where
+          the robot can generate motion more freely in different directions,
+          while regions with lower manipulability indicate reduced dexterity and
+          proximity to singularities.
+        </p>
+      </section>
+
+      <section class="ws_section">
+        <h2>Why Not Plot the Dextrous Workspace?</h2>
+
+        <p>
+          The dextrous workspace is theoretically defined as the set of
+          positions where the end-effector can achieve every possible
+          orientation.
+        </p>
+
+        <p>
+          For redundant manipulators, verifying this condition is
+          computationally extensive because each position corresponds to
+          infinitely many joint configurations and continuously varying
+          orientationsChecking every orientation at every reachable point is
+          therefore impractical.
+        </p>
+
+        <p>
+          Consequently, we do not explicitly compute the dextrous workspace for
+          high-DOF manipulators. Instead, manipulability analysis provides a
+          computationally efficient approximation of dexterity, offering
+          meaningful insight into the quality of motion throughout the workspace
+          without requiring exhaustive orientation verification.
+        </p>
+      </section>
+
+      <section class="ws_project">
+        <div>
+          <a href="/projects/proj_ws_analysis/">
+            Case Study:Workspace Analysis of the Franka Research 3 Manipulator
+            &rarr;
+          </a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
