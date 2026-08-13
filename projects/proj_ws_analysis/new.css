@@ -13,6 +13,7 @@ body {
 }
 
 main {
+  width: 80%;
   max-width: 1500px;
 
   margin: 60px auto;
@@ -92,11 +93,27 @@ main {
 
   margin-bottom: 15px;
 }
-.ws_section li {
-  color: #374151;
 
-  margin-bottom: 10px;
+.equation {
+  margin: 35px 0;
+
+  padding: 22px;
+
+  background: #f0fdff;
+
+  border-left: 5px solid cyan;
+
+  border-radius: 10px;
+
+  text-align: center;
 }
+
+.equation p {
+  font-size: 28px;
+
+  color: #111827;
+}
+
 figure {
   margin: 45px auto;
 
@@ -120,6 +137,7 @@ figure img {
 
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
+
 figcaption {
   color: #6b7280;
 
@@ -127,6 +145,7 @@ figcaption {
 
   margin-top: 15px;
 }
+
 .equation {
   margin: 35px 0;
 
@@ -140,6 +159,7 @@ figcaption {
 
   text-align: center;
 }
+
 .equation p {
   font-size: 28px;
 

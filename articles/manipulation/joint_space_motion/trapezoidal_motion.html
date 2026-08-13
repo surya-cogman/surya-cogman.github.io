@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trapeziodal Velocity based Motion</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="tm.css" rel="stylesheet" />
+
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [["$", "$"]],
+          displayMath: [["\\[", "\\]"]],
+        },
+      };
+    </script>
+
+    <script
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <section class="hero">
+      <h1>Trapezoidal Velocity based Motion</h1>
+    </section>
+
+    <main>
+      <section class="body_section">
+        <h2>Introduction</h2>
+        <p>
+          When a joint is commanded to move directly from its current position
+          to a target position, sending the target angle alone does not define
+          how the robot should move between the two configurations. A position
+          controller may attempt to reach the target as quickly as possible,
+          resulting in abrupt changes in velocity and acceleration.
+        </p>
+
+        <p>
+          To address this, a trapezoidal velocity profile can be used to
+          generate a smooth joint-space trajectory. The approach explicitly
+          defines the acceleration, constant-velocity, and deceleration phases
+          of the motion while providing control over the velocity and
+          acceleration experienced by the joint.
+        </p>
+
+        <figure>
+          <img src="velocity_profile.png" alt="Velocity profile img" />
+          <figcaption>
+            Trapezoidal trajectory profile showing position, velocity, and
+            acceleration during the three phases of motion.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="body_section">
+        <h2>Velocity Profile</h2>
+        <p>The velocity profile is divided into three phases:</p>
+
+        <ul>
+          <li>1. Acceleration</li>
+          <li>2. Constant Velocity / Cruise</li>
+          <li>3. deceleration</li>
+        </ul>
+        <p>with $T = t_a + t_c + t_d$</p>
+        <p>where,</p>
+        <ul>
+          <li>$t_a$ - Acceleration phase time</li>
+          <li>$t_c$ - Constant Velocity / Cruise phase time</li>
+          <li>$t_d$ - deceleration phase time</li>
+        </ul>
+
+        <p>for a symmetric profile $t_a = t_d$</p>
+      </section>
+
+      <section class="body_section">
+        <h2>Mathematical Formulation</h2>
+
+        <p>
+          Consider a joint moving from an initial position $q_{ini}$ to a final
+          position $q_{fin}$. The required joint displacement is
+        </p>
+
+        \[ S = q_{fin} - q_{ini} \]
+
+        <p>
+          The motion is described by the joint position, velocity, and
+          acceleration:
+        </p>
+
+        \[ q(t), \qquad \dot{q}(t), \qquad \ddot{q}(t) \]
+
+        <p>The trajectory starts and ends with zero velocity:</p>
+
+        \[ \dot{q}(0) = 0, \qquad \dot{q}(T) = 0 \]
+
+        <p>
+          The velocity profile is characterized by a maximum velocity $V_{max}$
+          and a maximum acceleration $A_{max}$. For a symmetric trapezoidal
+          profile, the acceleration and deceleration durations are equal:
+        </p>
+
+        \[ t_a = t_d \]
+
+        <p>Therefore, the total trajectory time is</p>
+
+        \[ T = t_a + t_c + t_d \]
+
+        <p>
+          The total displacement is obtained from the area under the
+          velocity-time profile:
+        </p>
+
+        \[ S = \frac{1}{2}V_{max}t_a + V_{max}t_c + \frac{1}{2}V_{max}t_d \]
+
+        <p>Since $t_a = t_d$, this becomes</p>
+
+        \[ S = V_{max}(t_a + t_c) \]
+
+        <p>
+          These relationships provide the common mathematical foundation for
+          both the time-based and velocity-based trajectory generation methods.
+        </p>
+
+        <h3>Acceleration Phase</h3>
+
+        <p>
+          During the acceleration phase, the joint starts with zero velocity and
+          accelerates at a constant acceleration $A_{max}$.
+        </p>
+
+        \[ \ddot{q}(t) = A_{max} \]
+
+        <p>Integrating acceleration gives the velocity:</p>
+
+        \[ \dot{q}(t) = A_{max}t \]
+
+        <p>Integrating the velocity gives the joint position:</p>
+
+        \[ q(t) = q_{ini} + \frac{1}{2}A_{max}t^2 \]
+
+        <p>
+          At the end of the acceleration phase, $t=t_a$, the velocity reaches
+          $V_{max}$:
+        </p>
+
+        \[ V_{max}=A_{max}t_a \]
+
+        <p>Therefore, the acceleration phase ends at the position</p>
+
+        \[ q_a=q_{ini}+\frac{1}{2}A_{max}t_a^2 \]
+
+        <p>Using $V_{max}=A_{max}t_a$, this can also be written as</p>
+
+        \[ q_a=q_{ini}+\frac{1}{2}V_{max}t_a \]
+
+        <h3>Constant-Velocity Phase</h3>
+
+        <p>
+          During the cruise phase, the joint moves at a constant velocity
+          $V_{max}$. Therefore, the acceleration is zero:
+        </p>
+
+        \[ \ddot{q}(t)=0 \]
+
+        <p>The velocity remains constant:</p>
+
+        \[ \dot{q}(t)=V_{max} \]
+
+        <p>
+          The cruise phase begins at $t=t_a$ from the position $q_a$. Therefore,
+          the position during this phase is
+        </p>
+
+        \[ q(t)=q_a+V_{max}(t-t_a) \]
+
+        <p>
+          At the end of the cruise phase, $t=t_a+t_c$, the joint reaches the
+          position $q_c$:
+        </p>
+
+        \[ q_c=q_a+V_{max}t_c \]
+
+        <p>Substituting the expression for $q_a$:</p>
+
+        \[ q_c = q_{ini} + \frac{1}{2}V_{max}t_a + V_{max}t_c \]
+
+        <h3>Deceleration Phase</h3>
+
+        <p>
+          During the deceleration phase, the joint decelerates at a constant
+          acceleration of $-A_{max}$:
+        </p>
+
+        \[ \ddot{q}(t)=-A_{max} \]
+
+        <p>Let the time elapsed since the beginning of deceleration be</p>
+
+        \[ \tau=t-(t_a+t_c) \]
+
+        <p>The velocity during deceleration is therefore</p>
+
+        \[ \dot{q}(t)=V_{max}-A_{max}\tau \]
+
+        <p>
+          Integrating the velocity from the position $q_c$ reached at the end of
+          the cruise phase gives
+        </p>
+
+        \[ q(t) = q_c + V_{max}\tau - \frac{1}{2}A_{max}\tau^2 \]
+
+        <p>
+          At the end of the deceleration phase, $\tau=t_d$. Since the joint must
+          come to rest at the final position:
+        </p>
+
+        \[ \dot{q}(T)=0 \]
+
+        <p>Therefore,</p>
+
+        \[ V_{max}=A_{max}t_d \]
+
+        <p>
+          For the symmetric profile where $t_a=t_d$, the velocity and
+          acceleration relationships remain consistent across the acceleration
+          and deceleration phases.
+        </p>
+      </section>
+
+      <section class="body_section">
+        <h2>Time-Based Trajectory Generation</h2>
+
+        <p>
+          In the time-based formulation, the total trajectory duration $T$ is
+          specified as the input. The required maximum velocity and acceleration
+          are then calculated from the required displacement.
+        </p>
+
+        <p>For a symmetric trapezoidal profile:</p>
+
+        \[ t_a = t_d \]
+
+        <p>The total trajectory time is therefore</p>
+
+        \[ T = t_a + t_c + t_d \] \[ T = 2t_a + t_c \]
+
+        <p>Rearranging gives the cruise time:</p>
+
+        \[ t_c = T - 2t_a \]
+
+        <p>
+          The total displacement is equal to the area under the velocity-time
+          profile:
+        </p>
+
+        \[ S = \frac{1}{2}V_{max}t_a + V_{max}t_c + \frac{1}{2}V_{max}t_d \]
+
+        <p>Since $t_a=t_d$:</p>
+
+        \[ S = V_{max}t_a + V_{max}t_c \] \[ S = V_{max}(t_a+t_c) \]
+
+        <p>Substituting $t_c=T-2t_a$:</p>
+
+        \[ S = V_{max}(t_a+T-2t_a) \] \[ S = V_{max}(T-t_a) \]
+
+        <p>
+          Therefore, the maximum velocity required to complete the motion within
+          the specified time is
+        </p>
+
+        \[ \boxed{ V_{max} = \frac{S}{T-t_a} } \]
+
+        <p>During the acceleration phase:</p>
+
+        \[ V_{max}=A_{max}t_a \]
+
+        <p>Therefore, the required maximum acceleration is</p>
+
+        \[ \boxed{ A_{max}=\frac{V_{max}}{t_a} } \]
+      </section>
+
+      <section class="body_section">
+        <h2>Velocity-Based Trajectory Generation</h2>
+
+        <p>
+          In the velocity-based formulation, the maximum velocity $V_{max}$ and
+          maximum acceleration $A_{max}$ are specified as the inputs. The
+          corresponding phase durations and total trajectory time are then
+          calculated from the required displacement.
+        </p>
+
+        <p>
+          During the acceleration phase, the velocity increases from zero to
+          $V_{max}$. Therefore,
+        </p>
+
+        \[ V_{max}=A_{max}t_a \]
+
+        <p>Solving for the acceleration time:</p>
+
+        \[ \boxed{ t_a=\frac{V_{max}}{A_{max}} } \]
+
+        <p>For a symmetric profile:</p>
+
+        \[ t_d=t_a \]
+
+        <p>The displacement is given by the area under the velocity profile:</p>
+
+        \[ S=V_{max}(t_a+t_c) \]
+
+        <p>Therefore, the cruise time is</p>
+
+        \[ \boxed{ t_c=\frac{S}{V_{max}}-t_a } \]
+
+        <p>Finally, the total trajectory time is</p>
+
+        \[ \boxed{ T=t_a+t_c+t_d } \]
+
+        <p>
+          Thus, unlike the time-based formulation, where the total trajectory
+          time is specified first, the velocity-based formulation determines the
+          total motion time from the selected velocity and acceleration limits.
+        </p>
+      </section>
+
+      <section class="body_section">
+        <h2>Triangular Velocity Profile</h2>
+
+        <p>
+          A trapezoidal profile assumes that the joint reaches the specified
+          maximum velocity $V_{max}$. However, for a sufficiently small
+          displacement, there may not be enough distance to reach $V_{max}$
+          before deceleration must begin.
+        </p>
+
+        <p>In this case, the cruise phase disappears:</p>
+
+        \[ t_c=0 \]
+
+        <p>
+          The velocity profile therefore becomes triangular, consisting only of
+          acceleration and deceleration phases.
+        </p>
+
+        <p>For a symmetric triangular profile:</p>
+
+        \[ t_a=t_d \]
+
+        <p>
+          The displacement is the area under the triangular velocity profile:
+        </p>
+
+        \[ S=V_p t_a \]
+
+        <p>where $V_p$ is the peak velocity reached during the motion. Since</p>
+
+        \[ V_p=A_{max}t_a \]
+
+        <p>substituting gives</p>
+
+        \[ S=A_{max}t_a^2 \]
+
+        <p>Therefore, the acceleration time is</p>
+
+        \[ \boxed{ t_a=\sqrt{\frac{S}{A_{max}}} } \]
+
+        <p>and the peak velocity becomes</p>
+
+        \[ \boxed{ V_p=\sqrt{S A_{max}} } \]
+
+        <p>The condition for selecting the triangular profile is</p>
+
+        \[ \boxed{ V_p < V_{max} } \]
+
+        <p>
+          If the calculated peak velocity is less than the specified maximum
+          velocity, the joint cannot reach $V_{max}$ and a triangular profile
+          must be used instead of a trapezoidal profile.
+        </p>
+      </section>
+
+      <section class="body_section">
+        <h2>Application to Manipulator Motion</h2>
+
+        <p>
+          The mathematical formulation described above provides a general
+          framework for generating smooth joint-space trajectories. In the
+          implementation, the same formulation can be applied independently to
+          multiple joints while maintaining a synchronized motion duration.
+        </p>
+
+        <p>
+          The trajectory generator was implemented for a 7-joint robotic
+          manipulator, where the initial joint configuration is obtained from
+          the measured joint states and the desired joint configuration is
+          provided as the target. The individual joint displacements are scaled
+          with respect to the largest displacement so that all joints reach
+          their respective target positions simultaneously.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

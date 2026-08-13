@@ -1,0 +1,87 @@
+body {
+  background: #f8fafc;
+  color: #1f2937;
+  font-family: "Poppins", sans-serif;
+}
+
+main {
+  width: 90%;
+  max-width: 1500px;
+  margin: 60px auto;
+}
+
+.hero {
+  margin-top: 60px;
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+
+  border-bottom: 3px solid #42454d;
+}
+
+.hero h1 {
+  text-align: center;
+  font-family: "orbitron", sans-serif;
+  font-size: 50px;
+  letter-spacing: 1px;
+}
+
+.body_section {
+  background: white;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.body_section h2 {
+  font-family: "orbitron", sans-serif;
+  font-size: 30px;
+  letter-spacing: 1px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid cyan;
+}
+
+.body_section h3 {
+  font-family: "orbitron", sans-serif;
+  font-size: 25px;
+  letter-spacing: 1px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid cyan;
+}
+
+.body_section p {
+  font-size: 18px;
+  text-align: justify;
+}
+
+.body_section ul {
+  margin-bottom: 20px;
+  padding-left: 25px;
+}
+
+.body_section li {
+  margin-bottom: 6px;
+}
+
+.body_section figure {
+  margin: 40px auto;
+  text-align: center;
+}
+
+.body_section figure img {
+  display: block;
+  width: 90%;
+  max-width: 1000px;
+  margin: 0 auto;
+  border-radius: 12px;
+}
+
+.body_section figcaption {
+  margin-top: 12px;
+
+  font-size: 15px;
+  font-style: italic;
+  color: #6b7280;
+}
