@@ -621,7 +621,7 @@ footer {
                         Mobile Responsive
 =============================================================== */
 
-@media (max-width: 768px) {
+@media (max-width: 1080px) {
   /* ================= Navbar ================= */
 
   nav {
@@ -818,7 +818,7 @@ footer {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1080px) {
   header {
     position: relative;
   }
