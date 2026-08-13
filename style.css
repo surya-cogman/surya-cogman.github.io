@@ -817,3 +817,33 @@ footer {
     font-size: 15px;
   }
 }
+
+@media (max-width: 768px) {
+  header {
+    position: relative;
+  }
+
+  nav {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .nav-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+
+    font-size: 14px;
+  }
+
+  .nav-links a {
+    white-space: nowrap;
+  }
+}
