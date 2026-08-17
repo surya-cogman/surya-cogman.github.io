@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MoveIt2</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="moveit.css" rel="stylesheet" />
+  </head>
+  <body>
+    <section class="mi_hero">
+      <h1>MoveIt 2: Motion Planning for Robots</h1>
+    </section>
+
+    <main>
+      <section class="mi_section">
+        <h2>How Does a Robot Know How to Move?</h2>
+        <p>
+          Let's say you have a robotic arm. You know its current state, and you
+          know where you want it to go. So how do you make it move? We have two
+          choices either move it using joint motion or cartesian motion.At
+          first, the problem seems simple.But real robotic motion quickly
+          becomes more complicated.
+        </p>
+        What if we want the end-effector to reach a specific position and
+        orientation? How do we determine a valid joint configuration for that
+        pose? If multiple configurations are possible, how do we choose one?
+        What if the robot has joint limits or self-collision constraints? What
+        if there are obstacles in the workspace and the robot cannot simply move
+        directly to the target? How do we find a collision-free path through the
+        environment and turn it into a trajectory that the robot controller can
+        execute?
+        <p>
+          These are motion-planning problems. This is where
+          <strong>MoveIt2</strong> comes into the picture.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>What Is MoveIt 2?</h2>
+        <p>
+          <a href="https://moveit.picknik.ai/">MoveIt 2</a> is a motion-planning
+          framework built for <strong>ROS 2</strong>. It provides tools and APIs
+          for planning and executing robot motion while considering the robot's
+          kinematics, joint limits, collisions, constraints, and the desired
+          target.
+        </p>
+
+        <p>
+          Instead of manually determining every intermediate joint position
+          required to move a robot from one configuration to another, we can
+          specify a goal and allow MoveIt 2 to determine a suitable trajectory.
+        </p>
+
+        <p>Conceptually:</p>
+
+        <p>
+          Robot State + Goal + Environment ↓ MoveIt 2 ↓ Motion Planning ↓ Joint
+          Trajectory ↓ Robot Controller ↓ Robot
+        </p>
+
+        <p>The important point is that MoveIt 2 primarily answers:</p>
+
+        <blockquote>
+          <strong
+            >"How can the robot move from its current state to the desired
+            state?"</strong
+          >
+        </blockquote>
+
+        <p>It is not itself the low-level motor controller.</p>
+      </section>
+
+      <section class="mi_section">
+        <h2>Where Does MoveIt 2 Sit in the Robot Control Stack?</h2>
+
+        <p>
+          To understand the role of MoveIt 2, it is important to distinguish
+          <strong>motion planning</strong> from <strong>motion control</strong>.
+          MoveIt 2 does not directly control the motors of a robot. Instead, it
+          operates at a higher level, generating a trajectory that can be
+          executed by the robot's controllers.
+        </p>
+
+        <div class="control-stack">
+          <details>
+            <summary>Robot Application</summary>
+            <p>
+              The application defines the task the robot needs to perform, such
+              as moving to a target, assembling a component, or performing a
+              pick-and-place operation.
+            </p>
+          </details>
+
+          <div class="flow-arrow">↓</div>
+
+          <details>
+            <summary>MoveIt 2 — Motion Planning</summary>
+            <p>
+              MoveIt 2 receives the robot state, target, and environment and
+              generates a feasible motion trajectory while considering
+              constraints such as joint limits and collisions.
+            </p>
+          </details>
+
+          <div class="flow-arrow">↓</div>
+
+          <details>
+            <summary>ros2_control — Robot Controllers</summary>
+            <p>
+              The generated trajectory is passed to the appropriate controller,
+              which is responsible for making the robot follow the commanded
+              motion.
+            </p>
+          </details>
+
+          <div class="flow-arrow">↓</div>
+
+          <details>
+            <summary>Hardware Interface</summary>
+            <p>
+              The hardware interface connects the ROS 2 control system to the
+              actual robot hardware or a simulation.
+            </p>
+          </details>
+
+          <div class="flow-arrow">↓</div>
+
+          <details>
+            <summary>Robot</summary>
+            <p>
+              The robot executes the commanded motion through its actuators and
+              low-level control system.
+            </p>
+          </details>
+        </div>
+
+        <p>
+          Therefore, MoveIt 2 should be viewed as the
+          <strong>motion-planning layer</strong>
+          rather than the low-level control layer.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>Why Do We Need Motion Planning?</h2>
+        <p>
+          Suppose we know the robot's current configuration and have a desired
+          target. A simple approach would be to calculate the required joint
+          positions and command the robot to move there. But reaching a target
+          is only part of the problem.
+        </p>
+
+        <p>
+          A practical robot must move through a physical environment while
+          respecting the limitations of its own mechanical structure. This
+          raises several questions:
+        </p>
+
+        <ul>
+          <li>Can the robot reach the desired target?</li>
+          <li>
+            Are the required joint configurations within the robot's joint
+            limits?
+          </li>
+          <li>Could the robot collide with itself while moving?</li>
+          <li>Could it collide with an object in the environment?</li>
+          <li>
+            If several valid configurations exist, which one should be used?
+          </li>
+          <li>
+            What path should the robot follow between the current state and the
+            target?
+          </li>
+        </ul>
+
+        <p>
+          Solving the kinematics of a robot can determine whether a particular
+          pose is reachable, but motion planning considers the larger problem of
+          finding a valid path through the robot's configuration space while
+          respecting the constraints of the robot and its environment.
+        </p>
+
+        <p>
+          This is the problem that motion-planning frameworks such as MoveIt 2
+          are designed to address.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>What Does MoveIt 2 Provide?</h2>
+
+        <p>
+          MoveIt 2 brings together several components required to plan robot
+          motion. Instead of implementing each part of the planning pipeline
+          independently, a robot application can use the interfaces provided by
+          MoveIt 2.
+        </p>
+
+        <h3>Motion Planning</h3>
+
+        <p>
+          MoveIt 2 can generate a feasible trajectory between the robot's
+          current state and a desired goal while considering the constraints
+          provided to the planner.
+        </p>
+
+        <h3>Inverse Kinematics</h3>
+
+        <p>
+          When a target is specified as an end-effector pose, MoveIt 2 can use
+          an inverse-kinematics solver to determine joint configurations that
+          can achieve the requested pose.
+        </p>
+
+        <h3>Collision Checking</h3>
+
+        <p>
+          MoveIt 2 can evaluate whether robot configurations and planned motions
+          result in collisions between the robot's own links or with objects
+          represented in the planning scene.
+        </p>
+
+        <h3>Constraints</h3>
+
+        <p>
+          Motion planning can be performed subject to constraints such as joint
+          limits, position constraints, and orientation constraints.
+        </p>
+
+        <h3>Planning Scene</h3>
+
+        <p>
+          MoveIt 2 maintains a representation of the robot and its environment
+          through the planning scene. Objects can be added to this environment
+          so that the planner can consider them while generating a trajectory.
+        </p>
+
+        <p>
+          These capabilities work together to transform a high-level motion goal
+          into a trajectory that can be passed to the robot's controller.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>Types of Motion in MoveIt 2</h2>
+
+        <p>
+          MoveIt 2 provides several ways to describe how we want a robot to
+          move. The appropriate method depends on whether the goal is defined in
+          terms of a predefined configuration, joint values, an end-effector
+          pose, or a specific Cartesian path.
+        </p>
+
+        <h3>1. Named Target</h3>
+
+        <p>
+          A named target represents a predefined robot configuration. Instead of
+          specifying individual joint values, we can give the configuration a
+          name such as <code>home</code> or <code>ready</code> and ask MoveIt 2
+          to move the robot to that configuration.
+        </p>
+
+        <h3>2. Joint-Space Target</h3>
+
+        <p>
+          A joint-space target directly specifies the desired value of each
+          joint. MoveIt 2 then plans a trajectory from the current joint
+          configuration to the requested configuration while considering the
+          configured constraints.
+        </p>
+
+        <h3>3. Pose Target</h3>
+
+        <p>
+          A pose target specifies the desired position and orientation of the
+          robot's end-effector. MoveIt 2 can use inverse kinematics to determine
+          a suitable joint configuration and then plan a motion to reach it.
+        </p>
+
+        <h3>4. Cartesian Path</h3>
+
+        <p>
+          A Cartesian path specifies how the end-effector should move through
+          Cartesian space. Instead of only specifying the final pose, we can
+          define waypoints that the end-effector should follow, allowing
+          applications to generate motions such as straight-line movements.
+        </p>
+
+        <p>
+          These four approaches differ mainly in
+          <strong>how the motion goal is expressed</strong>. MoveIt 2 can then
+          use its planning and trajectory generation capabilities to produce a
+          motion that the robot controller can execute.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>Motion Planning vs Motion Control</h2>
+
+        <p>
+          MoveIt 2 is responsible for planning robot motion, but planning a
+          motion is different from controlling the robot to execute that motion.
+        </p>
+
+        <p>
+          <strong>Motion planning</strong> determines a feasible path and
+          trajectory from the current robot state to a desired goal. It
+          considers the robot's configuration, constraints, and environment to
+          determine how the robot should move.
+        </p>
+
+        <p>
+          <strong>Motion control</strong> is responsible for making the physical
+          robot follow that trajectory. Controllers operate at a lower level and
+          generate the commands required by the robot's actuators.
+        </p>
+
+        <pre>
+        Motion Planning
+              │
+              ↓
+       Desired Trajectory
+              │
+              ↓
+        Motion Control
+              │
+              ↓
+       Actuator Commands
+              │
+              ↓
+            Robot
+        </pre>
+
+        <p>
+          This separation is important because MoveIt 2 does not replace the
+          controller. Instead, it works together with the control layer to turn
+          a planned motion into actual robot movement.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>Collision Checking and the Planning Scene</h2>
+
+        <p>
+          Reaching a target is not enough for a robot. The robot must also be
+          able to reach that target without colliding with itself or with
+          objects in its environment.
+        </p>
+
+        <p>
+          MoveIt 2 uses a <strong>Planning Scene</strong> to represent the robot
+          and relevant objects around it. This allows the motion planner to
+          evaluate whether a planned configuration or trajectory is valid.
+        </p>
+
+        <p>
+          For example, consider a robot that needs to move its end-effector from
+          one side of an obstacle to the other:
+        </p>
+
+        <pre>
+            Target
+            ●
+            │
+        ┌─────────┐
+        │Obstacle │
+        └─────────┘
+            │
+            ●
+            Robot
+        </pre>
+
+        <p>
+          A simple motion directly toward the target may pass through the
+          obstacle. A motion planner can instead search for an alternative
+          collision-free path.
+        </p>
+
+        <p>
+          Collision checking can also consider <strong>self-collisions</strong>,
+          where different links of the robot could come into contact with each
+          other.
+        </p>
+
+        <p>
+          This is one of the important distinctions between solving only the
+          robot's kinematics and solving a broader motion-planning problem:
+          <strong
+            >the robot must not only be able to reach the target, but must also
+            find a valid way to get there.</strong
+          >
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>The MoveIt 2 Planning Pipeline</h2>
+
+        <p>
+          When a motion request is sent to MoveIt 2, several components work
+          together to transform the request into an executable trajectory.
+        </p>
+
+        <pre>
+Motion Request
+      ↓
+Planning Scene
+      ↓
+Motion Planner
+      ↓
+Collision Checking
+      ↓
+Trajectory Processing
+      ↓
+Robot Controller
+</pre
+        >
+
+        <p>
+          The <strong>planning scene</strong> provides the planner with the
+          current robot state and information about relevant objects in the
+          environment.
+        </p>
+
+        <p>
+          The <strong>motion planner</strong> searches for a valid path between
+          the current state and the requested goal. Different planning
+          algorithms can be used depending on the requirements of the
+          application.
+        </p>
+
+        <p>
+          During planning, candidate motions can be checked for collisions and
+          other constraints. Once a valid solution is found, the resulting path
+          can be processed into a trajectory suitable for execution.
+        </p>
+
+        <p>
+          Finally, the trajectory is passed to the appropriate robot controller,
+          which executes the planned motion.
+        </p>
+
+        <p>
+          The important idea is that MoveIt 2 is not a single algorithm. It is a
+          collection of components that work together to turn a high-level
+          motion request into a feasible robot trajectory.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>Limitations of MoveIt 2</h2>
+
+        <p>
+          MoveIt 2 provides a powerful motion-planning framework, but it is not
+          a complete solution for every aspect of robotic manipulation. It is
+          important to understand what MoveIt 2 does and what still needs to be
+          implemented by the application.
+        </p>
+
+        <h3>Motion Planning Is Not Task Planning</h3>
+
+        <p>
+          MoveIt 2 can plan how the robot should move between states, but it
+          does not automatically decide the complete sequence of actions
+          required for a task. For example, a pick-and-place application still
+          needs higher-level logic to decide which object to pick, where to
+          place it, and when to open or close the gripper.
+        </p>
+
+        <h3>It Does Not Provide Perception</h3>
+
+        <p>
+          MoveIt 2 can use objects represented in its planning scene, but it
+          does not automatically detect objects in the real world. Cameras,
+          sensors, and perception algorithms are still required to determine
+          where objects are located.
+        </p>
+
+        <h3>Planning Is Not Low-Level Control</h3>
+
+        <p>
+          MoveIt 2 generates motion plans and trajectories, but the robot still
+          requires controllers to execute those trajectories. Applications that
+          require low-level position, velocity, impedance, or torque control
+          need an appropriate control framework in addition to MoveIt 2.
+        </p>
+
+        <h3>No Guarantee of the Globally Optimal Path</h3>
+
+        <p>
+          A motion planner can find a valid solution without necessarily finding
+          the globally optimal one. The quality of the resulting motion depends
+          on the selected planner, planning parameters, constraints, and
+          available planning time.
+        </p>
+
+        <p>
+          Therefore, MoveIt 2 should be viewed as one component of a larger
+          robotic system. It is particularly useful for
+          <strong
+            >motion planning and collision-aware trajectory generation</strong
+          >, while perception, task-level reasoning, and low-level control
+          remain separate concerns.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>Conclusion</h2>
+
+        <p>
+          MoveIt 2 provides a structured way to solve the motion-planning
+          problem in ROS 2. Instead of manually handling every aspect of finding
+          a feasible robot trajectory, applications can define a motion goal and
+          rely on MoveIt 2 to plan a suitable path while considering the robot
+          model, constraints, and environment.
+        </p>
+
+        <p>
+          Its capabilities range from simple joint and named-target motions to
+          end-effector pose goals and Cartesian paths, with collision checking
+          and trajectory generation forming an important part of the planning
+          process.
+        </p>
+
+        <p>
+          At the same time, MoveIt 2 is only one component of a complete robotic
+          system. Perception, task-level decision making, grasping logic, and
+          low-level control are separate responsibilities that must work
+          together with the motion-planning layer.
+        </p>
+
+        <p>
+          MoveIt 2 can also serve as the motion-execution layer for
+          <strong>higher-level planners</strong>. A task planner, behavior
+          planner, or autonomous decision-making system can determine
+          <em>what</em> the robot should accomplish and provide MoveIt 2 with
+          the corresponding motion goals, such as a target pose, joint
+          configuration, or Cartesian path. MoveIt 2 can then take those goals
+          and handle the lower-level motion-planning problem of finding a
+          feasible trajectory.
+        </p>
+
+        <p>
+          Understanding this separation is essential when building robotic
+          applications with ROS 2. MoveIt 2 handles the complexity of
+          <strong>planning how the robot should move</strong>, while the rest of
+          the system determines <strong>what the robot should do</strong> and
+          <strong>how the physical hardware should execute that motion</strong>.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

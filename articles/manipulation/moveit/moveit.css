@@ -1,0 +1,134 @@
+body {
+  background: #f8fafc;
+
+  color: #1f2937;
+  font-family: "Poppins", sans-serif;
+}
+
+main {
+  max-width: 1500px;
+  margin: 60px auto;
+}
+
+.mi_hero {
+  margin-top: 60px;
+  margin-bottom: 50px;
+  padding-bottom: 50px;
+
+  border-bottom: 3px solid #42454d;
+}
+
+.mi_hero h1 {
+  text-align: center;
+  font-family: "orbitron", sans-serif;
+  font-size: 50px;
+  letter-spacing: 1px;
+}
+
+.mi_section {
+  background: white;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.mi_section h2 {
+  font-family: "orbitron", sans-serif;
+  font-size: 30px;
+  letter-spacing: 1px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid cyan;
+}
+
+.mi_section p {
+  font-size: 18px;
+  text-align: justify;
+}
+
+.mi_project {
+  margin-top: 60px;
+  text-align: right;
+}
+
+.mi_project div {
+  /* display: inline-block; */
+
+  background-color: #f8fafc;
+  padding: 20px;
+}
+
+.mi_project a {
+  text-decoration: none;
+  color: #1f2937;
+  transition: 3ms ease;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.mi_project a:hover {
+  text-decoration: none;
+
+  color: #245f73;
+}
+
+.control-stack {
+  margin-top: 30px;
+}
+
+.control-stack details {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-left: 5px solid #2563eb;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: 0.3s;
+}
+
+.control-stack details:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+}
+
+.control-stack summary {
+  padding: 18px 20px;
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+}
+
+.control-stack summary::-webkit-details-marker {
+  display: none;
+}
+
+.control-stack summary::after {
+  content: "+";
+  position: absolute;
+  right: 20px;
+  font-size: 20px;
+  color: #2563eb;
+  transition: 0.3s;
+}
+
+.control-stack details[open] summary::after {
+  content: "−";
+}
+
+.control-stack details p {
+  padding: 0 20px 20px;
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.7;
+}
+
+.flow-arrow {
+  text-align: center;
+  margin: 6px 0;
+  font-size: 22px;
+  color: #6b7280;
+}
