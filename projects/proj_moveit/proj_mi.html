@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MoveIt Implementation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="proj_mi.css" rel="stylesheet" />
+  </head>
+  <body>
+    <section class="mi_hero">
+      <h1>MoveIt 2 Motion Planning for the Franka Research 3</h1>
+      <p>
+        Configuring the FR3 with MoveIt 2 using the MoveIt Setup Assistant and
+        developing a custom C++ interface for joint-space and pose-space motion
+        planning.
+      </p>
+    </section>
+
+    <main>
+      <section class="mi_section">
+        <h2>Overview</h2>
+
+        <p>
+          This project focuses on integrating the Franka Research 3 (FR3)
+          manipulator with MoveIt 2 for motion planning and execution in ROS 2.
+          The MoveIt configuration was generated using the MoveIt Setup
+          Assistant and adapted for the FR3 manipulation stack.
+        </p>
+
+        <p>
+          The generated configuration is launched using
+          <code>demo.launch.py</code>, providing the MoveIt planning environment
+          and RViz interface for visualizing and executing planned robot
+          motions.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>MoveIt Setup Assistant</h2>
+
+        <p>
+          The FR3 MoveIt configuration was generated using the
+          <strong>MoveIt Setup Assistant</strong>. The FR3 robot description was
+          loaded into the assistant and the required MoveIt configuration was
+          created for motion planning.
+        </p>
+
+        <p>
+          The generated configuration defines the required MoveIt components for
+          loading the FR3 model, configuring the planning group, and launching
+          the MoveIt planning environment. The resulting configuration is
+          maintained in the <code>fr3_moveit_config</code> package.
+        </p>
+
+        <figure class="mi_media">
+          <img
+            src="/images/moveit/moveit_setup_assist.png"
+            alt="setup_assistant"
+          />
+          <figcaption>
+            Planning group configuration for the FR3 using the MoveIt Setup
+            Assistant.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="mi_section">
+        <h2>Launching MoveIt 2</h2>
+
+        <p>
+          After generating the MoveIt configuration, the planning environment
+          can be launched using the provided <code>demo.launch.py</code> launch
+          file. This starts the MoveIt 2 planning components and RViz, providing
+          an interactive interface for visualizing the FR3 and testing motion
+          planning.
+        </p>
+
+        <pre><code>ros2 launch fr3_moveit_config demo.launch.py</code></pre>
+      </section>
+
+      <section class="mi_section">
+        <h2>Motion Planning Demonstration</h2>
+
+        <p>
+          With the MoveIt environment running, target poses can be specified
+          through the MoveIt RViz interface. MoveIt generates a trajectory from
+          the current robot state to the selected target and displays the
+          planned motion in RViz.
+        </p>
+
+        <p>
+          The planned trajectory can then be executed to observe the
+          corresponding robot motion in the simulation environment. The current
+          implementation focuses on motion planning and execution without
+          user-defined obstacles in the planning scene.
+        </p>
+
+        <figure class="mi_media">
+          <video controls>
+            <source
+              src="/images/moveit/moveit_rviz_interaction.mp4"
+              type="video/mp4"
+            />
+
+            Your browser does not support the video tag.
+          </video>
+
+          <figcaption>
+            Motion planning and execution of the FR3 using the MoveIt 2 RViz
+            interface.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="mi_section">
+        <h2>From RViz Interaction to Programmatic Control</h2>
+
+        <p>
+          So far, the FR3 has been controlled through the MoveIt 2 RViz
+          interface, where target poses can be selected interactively and
+          planned trajectories can be executed through the graphical interface.
+          While this is useful for visualizing and validating the MoveIt setup,
+          a practical manipulation system requires motion commands to be
+          generated programmatically.
+        </p>
+
+        <p>
+          To achieve this, the next step was to develop a custom C++ interface
+          using the <strong>MoveIt 2 API</strong>. This allows motion targets to
+          be provided through ROS 2 interfaces and gives the application greater
+          flexibility in how different types of robot motion are commanded.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
