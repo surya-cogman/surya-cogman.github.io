@@ -15,6 +15,7 @@ body {
   font-family: "Orbitron", sans-serif;
   letter-spacing: 1px;
   text-align: center;
+  font-size: 50px;
 }
 
 .mi_hero p {
@@ -45,6 +46,13 @@ main {
   letter-spacing: 1px;
   padding-bottom: 15px;
   border-bottom: 3px solid cyan;
+  font-size: 30px;
+  letter-spacing: 1px;
+}
+
+.mi_section p {
+  text-align: justify;
+  font-size: 18px;
 }
 
 .mi_media {
