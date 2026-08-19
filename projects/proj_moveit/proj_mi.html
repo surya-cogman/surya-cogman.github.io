@@ -21,7 +21,7 @@
       <h1>MoveIt 2 Motion Planning for the Franka Research 3</h1>
       <p>
         Configuring the FR3 with MoveIt 2 using the MoveIt Setup Assistant and
-        developing a custom C++ interface for joint-space and pose-space motion
+        developing a custom C++ interface for joint-space and task-space motion
         planning.
       </p>
     </section>
@@ -139,6 +139,271 @@
           using the <strong>MoveIt 2 API</strong>. This allows motion targets to
           be provided through ROS 2 interfaces and gives the application greater
           flexibility in how different types of robot motion are commanded.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>MoveIt C++ API Motivation</h2>
+
+        <p>
+          While RViz provides an effective interface for manually testing and
+          validating robot motion, it is not sufficient when motion needs to
+          become part of a larger autonomous manipulation pipeline. The
+          objective was therefore to move beyond interactive control and expose
+          MoveIt2 planning capabilities directly to application-level code,
+          allowing robot motions to be generated, configured, and executed
+          programmatically.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>MoveIt 2 C++ API for Motion Planning</h2>
+        <p>
+          The MoveIt 2 C++ API provides a programmatic interface to the
+          motion-planning capabilities. Through the
+          <code>MoveGroupInterface</code>, a ROS 2 application can interact with
+          a configured planning group, define different types of motion goals,
+          and request their execution.
+        </p>
+        <p>
+          For manipulator motion, the API supports several ways of specifying a
+          goal. A target can be expressed directly as a set of joint values, as
+          an end-effector pose, or as a Cartesian motion. The interface also
+          provides control over planning parameters such as velocity and
+          acceleration scaling.
+        </p>
+
+        <p>
+          Once a target is defined, the API can request a motion plan from the
+          robot's current state. If a valid trajectory is found, the planned
+          trajectory can then be executed on the robot.
+        </p>
+
+        <figure class="mi_media">
+          <img src="/images/moveit/moveit api.jpg" alt="flow of api" />
+          <figcaption>
+            Programmatic motion planning flow using the MoveIt 2 C++ API, from
+            target specification to trajectory execution on the FR3.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="mi_section">
+        <h2>Using the Moveit2 API</h2>
+
+        <p>
+          MoveIt 2 exposes its motion-planning functionality through C++
+          interfaces that allow an application to interact directly with the
+          planning system. For manipulator motion, the
+          <code>MoveGroupInterface</code> provides a high-level interface for
+          working with a configured planning group and exposes the main
+          operations required to define and execute robot motion.
+        </p>
+
+        <p>
+          The interface provides functions for accessing the robot's current
+          state, defining different types of motion targets, configuring
+          planning parameters, generating motion plans, and executing the
+          resulting trajectories. This places the complete motion-planning
+          workflow within the application rather than requiring each operation
+          to be performed through the RViz interface.
+        </p>
+
+        <p>
+          The target-setting functions are particularly important because they
+          allow the desired motion to be expressed in different forms.
+          Joint-value targets describe a desired robot configuration, pose
+          targets describe an end-effector pose, and Cartesian planning
+          functions allow motion to be specified along a Cartesian path. Once a
+          target has been defined, the planning functions use the available
+          robot model and planning configuration to generate a feasible
+          trajectory.
+        </p>
+        <p>
+          The API therefore provides the building blocks for the complete
+          motion-planning cycle:
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>Integrating the API into the Motion Interface</h2>
+
+        <p>
+          The C++ motion interface connects the ROS 2 application to the MoveIt
+          2 planning pipeline through the <code>MoveGroupInterface</code>. The
+          interface is initialized with the required planning group, after which
+          the common planning parameters and robot state can be configured
+          before a motion target is supplied.
+        </p>
+
+        <pre><code>arm_ = std::make_shared&lt;MoveGroupInterface&gt;(node_, "arm_links");
+
+arm_-&gt;setMaxAccelerationScalingFactor(1.0);
+arm_-&gt;setMaxVelocityScalingFactor(1.0);</code></pre>
+
+        <p>
+          The planning request is started from the robot's current configuration
+          so that each new command is planned from the state in which the robot
+          actually resides.
+        </p>
+
+        <pre><code>arm_-&gt;setStartStateToCurrentState();</code></pre>
+
+        <p>
+          With the planning interface configured, the target representation is
+          the part that changes between the different motion commands. A joint
+          target describes the desired configuration directly through joint
+          values, while a pose target describes the desired position and
+          orientation of the end-effector. Cartesian motion instead describes
+          the desired motion as a straight line path through Cartesian space but
+          the input remains same as pose target with waypoints.
+        </p>
+
+        <p>
+          As an example, consider the pose-target interface. The requested
+          position and orientation are received as Cartesian values. The
+          position can be assigned directly, while the orientation is converted
+          from roll, pitch, and yaw into a quaternion before being provided to
+          MoveIt 2.
+        </p>
+
+        <pre><code>tf2::Quaternion q;
+q.setRPY(roll, pitch, yaw);
+q.normalize();
+
+geometry_msgs::msg::PoseStamped target_pose;
+target_pose.header.frame_id = "base_link";
+
+target_pose.pose.position.x = x;
+target_pose.pose.position.y = y;
+target_pose.pose.position.z = z;
+
+target_pose.pose.orientation.x = q.getX();
+target_pose.pose.orientation.y = q.getY();
+target_pose.pose.orientation.z = q.getZ();
+target_pose.pose.orientation.w = q.getW();</code></pre>
+
+        <p>
+          The resulting pose is then supplied to the MoveIt planning interface
+          as the desired end-effector target. MoveIt takes this Cartesian goal
+          together with the current robot state and the configured planning
+          parameters to determine a suitable motion.
+        </p>
+
+        <pre><code>arm_-&gt;setPoseTarget(target_pose);</code></pre>
+
+        <p>
+          Once the target has been defined, the planning and execution mechanism
+          is common to the different motion interfaces. The <code>plan()</code>
+          operation requests a trajectory from MoveIt 2, and the returned result
+          is checked before the trajectory is executed.
+        </p>
+
+        <pre><code>MoveGroupInterface::Plan plan;
+
+bool success =
+    (arm_-&gt;plan(plan) ==
+     moveit::core::MoveItErrorCode::SUCCESS);
+
+if (success)
+{
+    arm_-&gt;execute(plan);
+}</code></pre>
+
+        <p>
+          The same sequence is followed for the other motion interfaces, with
+          only the representation of the target changing. This provides a common
+          programmatic interface for commanding different types of robot motion
+          while leaving trajectory planning and execution to MoveIt 2.
+        </p>
+
+        <p>
+          The resulting motion interfaces were then tested on the FR3 to verify
+          joint-space, task-space, and Cartesian motion through the programmatic
+          control pipeline.
+        </p>
+      </section>
+
+      <section class="mi_section">
+        <h2>Motion Planning Results</h2>
+
+        <p>
+          The following demonstrations show the resulting robot motion for the
+          different target types. Each motion is generated through the C++
+          interface and passed through the MoveIt 2 planning and execution
+          pipeline.
+        </p>
+
+        <figure class="mi_media">
+          <video controls>
+            <source
+              src="/images/moveit/joint_traget_edit.mp4"
+              type="video/mp4"
+            />
+          </video>
+          <figcaption>
+            Joint-space motion planning and execution for the Franka Research 3,
+            where a desired joint configuration is specified as the motion goal
+            and MoveIt 2 generates a feasible trajectory from the current robot
+            state to the target configuration.
+          </figcaption>
+        </figure>
+
+        <figure class="mi_media">
+          <video controls>
+            <source src="/images/moveit/pose_target.mp4" type="video/mp4" />
+          </video>
+          <figcaption>
+            Pose-target based motion planning and execution for the Franka
+            Research 3, where the desired end-effector position and orientation
+            are specified as the motion goal and MoveIt 2 generates and executes
+            a trajectory to reach the target pose.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="mi_section">
+        <h2>From Motion Execution to Collision-Aware Planning</h2>
+
+        <p>
+          This project established the complete motion-planning pipeline for the
+          manipulator, starting with the MoveIt 2 configuration and RViz-based
+          validation and progressing to a C++ interface for commanding different
+          types of motion. Joint-space and task-space targets can be provided
+          through the interface, while MoveIt 2 handles trajectory planning and
+          execution.
+        </p>
+
+        <p>
+          The next step is to move from target-based motion planning to
+          <strong>environment-aware motion planning</strong>. This requires
+          representing obstacles in the MoveIt 2 PlanningScene and incorporating
+          collision checking into the planning process so that the generated
+          trajectories can safely navigate around the environment.
+        </p>
+
+        <!-- <p>
+          The collision-aware planning extension is covered separately to keep
+          this project focused on the fundamental MoveIt 2 motion-planning
+          pipeline.
+        </p>
+
+        <p>
+          <a href="#">→ Collision-Aware Motion Planning with MoveIt 2</a>
+        </p> -->
+      </section>
+      <section class="github_link">
+        <p>
+          <strong>Want to explore the implementation?</strong>
+          The complete source code and supporting resources for this project are
+          available in the
+          <a
+            href="https://github.com/surya-cogman/fr3v2_manipulator_stack"
+            target="_blank"
+          >
+            project repository </a
+          >. Explore the implementation to see how the concepts presented here
+          are translated into a working robotic system.
         </p>
       </section>
     </main>
